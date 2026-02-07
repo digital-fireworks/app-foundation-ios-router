@@ -18,6 +18,12 @@ public struct SheetPresentation<Sheet>: Identifiable where Sheet: Equatable {
     }
 }
 
+public typealias DefaultRouter = Router<AnyHashable, AnyHashable>
+
+extension EnvironmentValues {
+    @Entry public var defaultRouter: DefaultRouter? = nil
+}
+
 @MainActor
 @Observable
 public final class Router<Route, Sheet> where Route: Hashable, Sheet: Equatable {
