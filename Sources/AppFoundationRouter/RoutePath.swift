@@ -1,7 +1,6 @@
 import Observation
 import SwiftUI
 
-@MainActor
 @Observable
 public final class RoutePath<Route: Hashable> {
 
