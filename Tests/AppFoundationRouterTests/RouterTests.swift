@@ -5,7 +5,7 @@ import XCTest
 final class RouterTests: XCTestCase {
 
     @MainActor
-    func testRouteOperationsProxyToRoutePath() {
+    func testRouteOperationsProxyToRouteStorage() {
         let router = Router<String, String>()
 
         router.push("one")

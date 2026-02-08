@@ -1,4 +1,3 @@
-import Observation
 import SwiftUI
 
 public struct SheetPresentation<Sheet>: Identifiable where Sheet: Equatable {
@@ -25,25 +24,25 @@ extension EnvironmentValues {
 }
 
 @Observable
-public final class Router<Route, Sheet> where Route: Hashable, Sheet: Equatable {
+public final class Router<Path, Sheet> where Path: Hashable, Sheet: Equatable {
 
-    public var routePath: RoutePath<Route>
+    public var routePath: Route<Path>
     public var presentedSheetPresentation: SheetPresentation<Sheet>?
 
     public init(
-        routePath: RoutePath<Route> = RoutePath(),
+        routePath: Route<Path> = Route(),
         presentedSheetPresentation: SheetPresentation<Sheet>? = nil
     ) {
         self.routePath = routePath
         self.presentedSheetPresentation = presentedSheetPresentation
     }
 
-    public var path: [Route] {
+    public var path: [Path] {
         get { routePath.path }
         set { routePath.path = newValue }
     }
 
-    public var binding: Binding<[Route]> {
+    public var binding: Binding<[Path]> {
         routePath.binding
     }
 
@@ -51,7 +50,7 @@ public final class Router<Route, Sheet> where Route: Hashable, Sheet: Equatable 
         routePath.isAtRoot
     }
 
-    public func push(_ route: Route) {
+    public func push(_ route: Path) {
         routePath.push(route)
     }
 

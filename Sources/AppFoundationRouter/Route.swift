@@ -1,16 +1,15 @@
-import Observation
 import SwiftUI
 
 @Observable
-public final class RoutePath<Route: Hashable> {
+public final class Route<Path: Hashable> {
 
-    public var path: [Route]
+    public var path: [Path]
 
-    public init(path: [Route] = []) {
+    public init(path: [Path] = []) {
         self.path = path
     }
 
-    public var binding: Binding<[Route]> {
+    public var binding: Binding<[Path]> {
         Binding(
             get: { self.path },
             set: { self.path = $0 }
@@ -21,7 +20,7 @@ public final class RoutePath<Route: Hashable> {
         path.isEmpty
     }
 
-    public func push(_ element: Route) {
+    public func push(_ element: Path) {
         path.append(element)
     }
 
