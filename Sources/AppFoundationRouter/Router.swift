@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct SheetPresentation<Sheet>: Identifiable where Sheet: Equatable {
+public struct SheetPresentation<Sheet>: Identifiable where Sheet: SheetPresentable {
     public let id = UUID()
     public let sheet: Sheet
     public let detents: Set<PresentationDetent>
@@ -24,24 +24,18 @@ public struct SheetPresentation<Sheet>: Identifiable where Sheet: Equatable {
     }
 }
 
-public typealias DefaultRouter = Router<AnyHashable, AnySheet>
-
-extension EnvironmentValues {
-    @Entry public var defaultRouter: DefaultRouter = DefaultRouter()
-}
-
 @Observable
-public final class Router<Path, Sheet> where Path: Hashable, Sheet: Equatable {
+public final class Router<Path, Sheet> where Path: Hashable, Sheet: SheetPresentable {
 
     public var route: Route<Path>
-    public var presentedSheetPresentation: SheetPresentation<Sheet>?
+    public var presentedSheet: SheetPresentation<Sheet>?
 
     public init(
         route: Route<Path> = Route(),
-        presentedSheetPresentation: SheetPresentation<Sheet>? = nil
+        presentedSheet: SheetPresentation<Sheet>? = nil
     ) {
         self.route = route
-        self.presentedSheetPresentation = presentedSheetPresentation
+        self.presentedSheet = presentedSheet
     }
 
     public var path: [Path] {
@@ -75,7 +69,7 @@ public final class Router<Path, Sheet> where Path: Hashable, Sheet: Equatable {
         initialDetent: PresentationDetent? = nil
     ) {
         let initial = initialDetent ?? detents.first ?? .medium
-        presentedSheetPresentation = SheetPresentation(
+        presentedSheet = SheetPresentation(
             sheet: sheet,
             detents: detents,
             initialDetent: initial
@@ -83,27 +77,10 @@ public final class Router<Path, Sheet> where Path: Hashable, Sheet: Equatable {
     }
 
     public func dismissSheet() {
-        presentedSheetPresentation = nil
-    }
-}
-
-extension Router where Path == AnyHashable, Sheet == AnySheet {
-
-    @MainActor
-    public func presentSheet<S: SheetProtocol>(
-        _ sheet: S,
-        detents: Set<PresentationDetent> = [.medium, .large],
-        initialDetent: PresentationDetent? = nil
-    ) {
-        presentSheet(
-            AnySheet(sheet),
-            detents: detents,
-            initialDetent: initialDetent
-        )
+        presentedSheet = nil
     }
 
-    @MainActor
-    public func isPresenting<S: SheetProtocol>(_ sheet: S) -> Bool {
-        presentedSheetPresentation?.sheet == AnySheet(sheet)
+    public func isPresenting(_ sheet: Sheet) -> Bool {
+        presentedSheet?.sheet == sheet
     }
 }

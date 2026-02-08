@@ -10,7 +10,7 @@ import XCTest
 @testable import AppFoundationRouter
 
 @MainActor
-private enum TestSheet: SheetProtocol {
+private enum TestSheet: SheetPresentable {
     case help
     case about
 
@@ -32,7 +32,7 @@ final class RouterTests: XCTestCase {
 
     @MainActor
     func testRouteOperationsProxyToRouteStorage() {
-        let router = Router<String, String>()
+        let router = Router<String, TestSheet>()
 
         router.push("one")
         router.push("two")
@@ -50,28 +50,17 @@ final class RouterTests: XCTestCase {
 
     @MainActor
     func testSheetPresentationAndDismissal() {
-        let router = Router<String, String>()
+        let router = Router<String, TestSheet>()
         let detents: Set<PresentationDetent> = [.medium, .large]
 
-        router.presentSheet("help", detents: detents, initialDetent: .large)
-        XCTAssertEqual(router.presentedSheetPresentation?.sheet, "help")
-        XCTAssertEqual(router.presentedSheetPresentation?.detents, detents)
-        XCTAssertEqual(router.presentedSheetPresentation?.initialDetent, .large)
+        router.presentSheet(.help, detents: detents, initialDetent: .large)
+        XCTAssertEqual(router.presentedSheet?.sheet, .help)
+        XCTAssertEqual(router.presentedSheet?.detents, detents)
+        XCTAssertEqual(router.presentedSheet?.initialDetent, .large)
+        XCTAssertTrue(router.isPresenting(.help))
+        XCTAssertFalse(router.isPresenting(.about))
 
         router.dismissSheet()
-        XCTAssertNil(router.presentedSheetPresentation)
-    }
-
-    @MainActor
-    func testDefaultRouterHelpersUseTypedSheetProtocol() {
-        let router = DefaultRouter()
-        let detents: Set<PresentationDetent> = [.medium, .large]
-
-        router.presentSheet(TestSheet.help, detents: detents, initialDetent: .large)
-
-        XCTAssertTrue(router.isPresenting(TestSheet.help))
-        XCTAssertFalse(router.isPresenting(TestSheet.about))
-        XCTAssertEqual(router.presentedSheetPresentation?.detents, detents)
-        XCTAssertEqual(router.presentedSheetPresentation?.initialDetent, .large)
+        XCTAssertNil(router.presentedSheet)
     }
 }
