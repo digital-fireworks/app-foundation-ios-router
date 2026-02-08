@@ -1,3 +1,10 @@
+//
+//  Router.swift
+//  AppFoundationRouter
+//
+//  Created by Fredrik Nannestad on 08/02/2026.
+//
+
 import SwiftUI
 
 public struct SheetPresentation<Sheet>: Identifiable where Sheet: Equatable {
@@ -26,40 +33,40 @@ extension EnvironmentValues {
 @Observable
 public final class Router<Path, Sheet> where Path: Hashable, Sheet: Equatable {
 
-    public var routePath: Route<Path>
+    public var route: Route<Path>
     public var presentedSheetPresentation: SheetPresentation<Sheet>?
 
     public init(
-        routePath: Route<Path> = Route(),
+        route: Route<Path> = Route(),
         presentedSheetPresentation: SheetPresentation<Sheet>? = nil
     ) {
-        self.routePath = routePath
+        self.route = route
         self.presentedSheetPresentation = presentedSheetPresentation
     }
 
     public var path: [Path] {
-        get { routePath.path }
-        set { routePath.path = newValue }
+        get { route.path }
+        set { route.path = newValue }
     }
 
     public var binding: Binding<[Path]> {
-        routePath.binding
+        route.binding
     }
 
     public var isAtRoot: Bool {
-        routePath.isAtRoot
+        route.isAtRoot
     }
 
     public func push(_ route: Path) {
-        routePath.push(route)
+        self.route.push(route)
     }
 
     public func pop() {
-        routePath.pop()
+        route.pop()
     }
 
     public func popToRoot() {
-        routePath.popToRoot()
+        route.popToRoot()
     }
 
     public func presentSheet(

@@ -1,3 +1,10 @@
+//
+//  RouterTests.swift
+//  AppFoundationRouterTests
+//
+//  Created by Fredrik Nannestad on 08/02/2026.
+//
+
 import SwiftUI
 import XCTest
 @testable import AppFoundationRouter

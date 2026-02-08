@@ -1,3 +1,10 @@
+//
+//  Route.swift
+//  AppFoundationRouter
+//
+//  Created by Fredrik Nannestad on 08/02/2026.
+//
+
 import SwiftUI
 
 @Observable
