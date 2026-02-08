@@ -1,20 +1,45 @@
 # AppFoundationRouter
 
-A small SwiftUI-first routing package that provides:
+`AppFoundationRouter` is a small SwiftUI-first routing package with typed navigation
+and typed sheet presentation.
 
-- `RoutePath<Route>` for stack navigation state
-- `Router<Route, Sheet>` as a combined navigation + sheet coordinator
+## What it provides
 
-The router is generic, so downstream apps define their own route and sheet types.
+- `Route<Path>`: stack navigation state and helpers.
+- `Router<Path, Sheet>`: combines `Route` with sheet presentation state.
+- `SheetPresentable`: protocol for app-defined sheet enums (includes presentation config).
+- `SheetPresentation`: detent configuration used by `SheetPresentable`.
 
-## Installation
+## Core types
 
-Add the local package dependency:
+```swift
+@Observable
+public final class Route<Path: Hashable> {
+    public var path: [Path]
+    public var binding: Binding<[Path]> { ... }
+    public var isAtRoot: Bool { ... }
+    public func push(_ element: Path)
+    public func pop()
+    public func popToRoot()
+}
 
-- Path: `Packages/AppFoundationRouter`
-- Product: `AppFoundationRouter`
+@Observable
+public final class Router<Path, Sheet>
+where Path: Hashable, Sheet: SheetPresentable {
+    public var route: Route<Path>
+    public var presentedSheet: Sheet?
+    public var binding: Binding<[Path]> { ... }
+    public var isAtRoot: Bool { ... }
+    public func push(_ route: Path)
+    public func pop()
+    public func popToRoot()
+    public func presentSheet(_ sheet: Sheet)
+    public func dismissSheet()
+    public func isPresenting(_ sheet: Sheet) -> Bool
+}
+```
 
-## Conceptual Usage
+## Conceptual usage
 
 ```swift
 import SwiftUI
@@ -25,36 +50,59 @@ enum AppRoute: Hashable {
     case details(id: UUID)
 }
 
-enum AppSheet: Equatable {
+enum AppSheet: SheetPresentable {
     case settings
     case help
+
+    nonisolated var id: String {
+        switch self {
+        case .settings: return "settings"
+        case .help: return "help"
+        }
+    }
+
+    var presentation: SheetPresentation {
+        switch self {
+        case .settings:
+            return SheetPresentation(detents: [.medium, .large], initialDetent: .medium)
+        case .help:
+            return SheetPresentation(detents: [.large], initialDetent: .large)
+        }
+    }
+
+    var body: some View {
+        switch self {
+        case .settings: Text("Settings")
+        case .help: Text("Help")
+        }
+    }
 }
 
 typealias AppRouter = Router<AnyHashable, AppSheet>
 
-private struct RouterKey: EnvironmentKey {
+private struct AppRouterKey: EnvironmentKey {
     static let defaultValue = AppRouter()
 }
 
 extension EnvironmentValues {
     var appRouter: AppRouter {
-        get { self[RouterKey.self] }
-        set { self[RouterKey.self] = newValue }
+        get { self[AppRouterKey.self] }
+        set { self[AppRouterKey.self] = newValue }
     }
 }
 
 struct RootView: View {
-    @Environment(\.appRouter) private var router
+    @Environment(\.appRouter) private var appRouter
 
     var body: some View {
-        NavigationStack(path: Bindable(router).routePath.binding) {
+        NavigationStack(path: Bindable(appRouter).route.binding) {
             VStack {
                 Button("Go to details") {
-                    router.push(AnyHashable(AppRoute.details(id: UUID())))
+                    appRouter.push(AnyHashable(AppRoute.details(id: UUID())))
                 }
 
                 Button("Open settings") {
-                    router.presentSheet(.settings)
+                    appRouter.presentSheet(.settings)
                 }
             }
             .navigationDestination(for: AnyHashable.self) { value in
@@ -63,17 +111,16 @@ struct RootView: View {
                     case .list:
                         Text("List")
                     case .details(let id):
-                        Text("Details: \(id.uuidString)")
+                        Text("Details \(id.uuidString)")
                     }
                 }
             }
-            .sheet(item: Bindable(router).presentedSheetPresentation) { presentation in
-                switch presentation.sheet {
-                case .settings:
-                    Text("Settings")
-                case .help:
-                    Text("Help")
-                }
+            .sheet(item: Bindable(appRouter).presentedSheet) { sheet in
+                sheet
+                    .presentationDetents(
+                        sheet.presentation.detents,
+                        selection: .constant(sheet.presentation.initialDetent)
+                    )
             }
         }
     }
@@ -82,6 +129,6 @@ struct RootView: View {
 
 ## Notes
 
-- Use `router.push(_:)`, `router.pop()`, and `router.popToRoot()` for navigation.
-- Use `router.presentSheet(_:detents:initialDetent:)` and `router.dismissSheet()` for modal presentation.
-- If you prefer strongly typed destinations, you can also use `RoutePath<YourRoute>` directly.
+- App code owns the environment key (for example `\.appRouter`).
+- Route type choice is up to the app (`AnyHashable` for mixed destinations, or a concrete enum).
+- For reusable view-level APIs, accept `Router<Path, Sheet>` or `Route<Path>` as input.

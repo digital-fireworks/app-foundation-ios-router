@@ -45,15 +45,15 @@ final class RouterTests: XCTestCase {
 
         router.push("one")
         router.push("two")
-        XCTAssertEqual(router.path, ["one", "two"])
+        XCTAssertEqual(router.route.path, ["one", "two"])
         XCTAssertEqual(router.binding.wrappedValue, ["one", "two"])
         XCTAssertFalse(router.isAtRoot)
 
         router.pop()
-        XCTAssertEqual(router.path, ["one"])
+        XCTAssertEqual(router.route.path, ["one"])
 
         router.popToRoot()
-        XCTAssertEqual(router.path, [])
+        XCTAssertEqual(router.route.path, [])
         XCTAssertTrue(router.isAtRoot)
     }
 

@@ -21,11 +21,6 @@ public final class Router<Path, Sheet> where Path: Hashable, Sheet: SheetPresent
         self.presentedSheet = presentedSheet
     }
 
-    public var path: [Path] {
-        get { route.path }
-        set { route.path = newValue }
-    }
-
     public var binding: Binding<[Path]> {
         route.binding
     }
