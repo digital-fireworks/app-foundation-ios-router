@@ -24,7 +24,7 @@ public struct SheetPresentation<Sheet>: Identifiable where Sheet: Equatable {
     }
 }
 
-public typealias DefaultRouter = Router<AnyHashable, AnyHashable>
+public typealias DefaultRouter = Router<AnyHashable, AnySheet>
 
 extension EnvironmentValues {
     @Entry public var defaultRouter: DefaultRouter = DefaultRouter()
@@ -84,5 +84,26 @@ public final class Router<Path, Sheet> where Path: Hashable, Sheet: Equatable {
 
     public func dismissSheet() {
         presentedSheetPresentation = nil
+    }
+}
+
+extension Router where Path == AnyHashable, Sheet == AnySheet {
+
+    @MainActor
+    public func presentSheet<S: SheetProtocol>(
+        _ sheet: S,
+        detents: Set<PresentationDetent> = [.medium, .large],
+        initialDetent: PresentationDetent? = nil
+    ) {
+        presentSheet(
+            AnySheet(sheet),
+            detents: detents,
+            initialDetent: initialDetent
+        )
+    }
+
+    @MainActor
+    public func isPresenting<S: SheetProtocol>(_ sheet: S) -> Bool {
+        presentedSheetPresentation?.sheet == AnySheet(sheet)
     }
 }

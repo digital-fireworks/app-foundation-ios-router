@@ -9,6 +9,25 @@ import SwiftUI
 import XCTest
 @testable import AppFoundationRouter
 
+@MainActor
+private enum TestSheet: SheetProtocol {
+    case help
+    case about
+
+    nonisolated var id: String {
+        switch self {
+        case .help:
+            return "help"
+        case .about:
+            return "about"
+        }
+    }
+
+    var body: some View {
+        Text(id)
+    }
+}
+
 final class RouterTests: XCTestCase {
 
     @MainActor
@@ -41,5 +60,18 @@ final class RouterTests: XCTestCase {
 
         router.dismissSheet()
         XCTAssertNil(router.presentedSheetPresentation)
+    }
+
+    @MainActor
+    func testDefaultRouterHelpersUseTypedSheetProtocol() {
+        let router = DefaultRouter()
+        let detents: Set<PresentationDetent> = [.medium, .large]
+
+        router.presentSheet(TestSheet.help, detents: detents, initialDetent: .large)
+
+        XCTAssertTrue(router.isPresenting(TestSheet.help))
+        XCTAssertFalse(router.isPresenting(TestSheet.about))
+        XCTAssertEqual(router.presentedSheetPresentation?.detents, detents)
+        XCTAssertEqual(router.presentedSheetPresentation?.initialDetent, .large)
     }
 }
