@@ -26,15 +26,6 @@ private enum TestSheet: SheetPresentable {
     var body: some View {
         Text(id)
     }
-
-    var presentation: SheetPresentation {
-        switch self {
-        case .help:
-            return SheetPresentation(detents: [.large], initialDetent: .large)
-        case .about:
-            return SheetPresentation()
-        }
-    }
 }
 
 final class RouterTests: XCTestCase {
@@ -63,8 +54,6 @@ final class RouterTests: XCTestCase {
 
         router.presentSheet(.help)
         XCTAssertEqual(router.presentedSheet, .help)
-        XCTAssertEqual(router.presentedSheet?.presentation.initialDetent, .large)
-        XCTAssertEqual(router.presentedSheet?.presentation.detents, [.large])
         XCTAssertTrue(router.isPresenting(.help))
         XCTAssertFalse(router.isPresenting(.about))
 

@@ -1,14 +1,13 @@
 # AppFoundationRouter
 
 `AppFoundationRouter` is a small SwiftUI-first routing package with typed navigation
-and typed sheet presentation.
+and typed sheet state.
 
 ## What it provides
 
 - `Route<Path>`: stack navigation state and helpers.
 - `Router<Path, Sheet>`: combines `Route` with sheet presentation state.
-- `SheetPresentable`: protocol for app-defined sheet enums (includes presentation config).
-- `SheetPresentation`: detent configuration used by `SheetPresentable`.
+- `SheetPresentable`: protocol for app-defined sheet enums.
 
 ## Core types
 
@@ -61,15 +60,6 @@ enum AppSheet: SheetPresentable {
         }
     }
 
-    var presentation: SheetPresentation {
-        switch self {
-        case .settings:
-            return SheetPresentation(detents: [.medium, .large], initialDetent: .medium)
-        case .help:
-            return SheetPresentation(detents: [.large], initialDetent: .large)
-        }
-    }
-
     var body: some View {
         switch self {
         case .settings: Text("Settings")
@@ -117,10 +107,6 @@ struct RootView: View {
             }
             .sheet(item: Bindable(appRouter).presentedSheet) { sheet in
                 sheet
-                    .presentationDetents(
-                        sheet.presentation.detents,
-                        selection: .constant(sheet.presentation.initialDetent)
-                    )
             }
         }
     }
