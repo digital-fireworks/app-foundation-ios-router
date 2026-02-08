@@ -7,32 +7,15 @@
 
 import SwiftUI
 
-public struct SheetPresentation<Sheet>: Identifiable where Sheet: SheetPresentable {
-    public let id = UUID()
-    public let sheet: Sheet
-    public let detents: Set<PresentationDetent>
-    public let initialDetent: PresentationDetent
-
-    public init(
-        sheet: Sheet,
-        detents: Set<PresentationDetent>,
-        initialDetent: PresentationDetent
-    ) {
-        self.sheet = sheet
-        self.detents = detents
-        self.initialDetent = initialDetent
-    }
-}
-
 @Observable
 public final class Router<Path, Sheet> where Path: Hashable, Sheet: SheetPresentable {
 
     public var route: Route<Path>
-    public var presentedSheet: SheetPresentation<Sheet>?
+    public var presentedSheet: Sheet?
 
     public init(
         route: Route<Path> = Route(),
-        presentedSheet: SheetPresentation<Sheet>? = nil
+        presentedSheet: Sheet? = nil
     ) {
         self.route = route
         self.presentedSheet = presentedSheet
@@ -63,17 +46,8 @@ public final class Router<Path, Sheet> where Path: Hashable, Sheet: SheetPresent
         route.popToRoot()
     }
 
-    public func presentSheet(
-        _ sheet: Sheet,
-        detents: Set<PresentationDetent> = [.medium, .large],
-        initialDetent: PresentationDetent? = nil
-    ) {
-        let initial = initialDetent ?? detents.first ?? .medium
-        presentedSheet = SheetPresentation(
-            sheet: sheet,
-            detents: detents,
-            initialDetent: initial
-        )
+    public func presentSheet(_ sheet: Sheet) {
+        presentedSheet = sheet
     }
 
     public func dismissSheet() {
@@ -81,6 +55,6 @@ public final class Router<Path, Sheet> where Path: Hashable, Sheet: SheetPresent
     }
 
     public func isPresenting(_ sheet: Sheet) -> Bool {
-        presentedSheet?.sheet == sheet
+        presentedSheet == sheet
     }
 }
